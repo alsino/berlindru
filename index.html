@@ -5,6 +5,9 @@
 	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 
 </head>
+<script src="d3/d3.js"></script>
+<script src="d3/d3.min.js"></script>
+<script src='jquery-1.11.2.min.js'></script>
 
 
 <style>
@@ -12,6 +15,14 @@
 body{
 	padding:0;
 	margin:0;
+}
+
+h1{
+	position: absolute;
+	font-family: Roboto;
+	font-size: 2em;
+	margin-top: 5%;
+	margin-left: 13%;
 }
 
 #canvas{
@@ -68,6 +79,7 @@ font-size:.5em;
 <body>
 
 
+  <h1>Beschlagnahmte Mengen Cannabis und Mariuhana <br> Berlin, 2014-2015</h1>
   <button type="button" id="Haschisch">nach Haschisch</button>
   <button type="button" id="Marihuana">nach Mariuhana</button>
   <button type="button" id="Monat">nach Monat</button>
@@ -176,11 +188,12 @@ vis.selectAll("circles")
       .style("opacity", opacity)
       .attr("class","Hasch")
 
- 
-$("#Haschisch").on ("click",function() {
-    $(".Hasch").toggle();
-});
 
+
+
+$("#Haschisch").on ("click",function() {
+    $(".Hasch").toggle("slow");
+});
 
 
 
@@ -202,7 +215,7 @@ $("#Haschisch").on ("click",function() {
 
  
 $("#Marihuana").on ("click",function() {
-    $(".Mari").toggle();
+    $(".Mari").toggle("slow");
 });
 
 
@@ -212,6 +225,8 @@ $("#Marihuana").on ("click",function() {
 
 
 </script>
+
+
 
 </body>
 </html>
