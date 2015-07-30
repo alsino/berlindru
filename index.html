@@ -1,0 +1,217 @@
+<html>
+<head>
+	<title>Berlindr</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+</head>
+
+
+<style>
+
+body{
+	padding:0;
+	margin:0;
+}
+
+#canvas{
+	/*background-color: #594057;*/
+	background-color: white;
+}
+
+.axis{
+  fill: none;
+  stroke-width: 1px;
+  /*stroke:white;*/
+  stroke: grey;
+  stroke-opacity: 0.5;
+  shape-rendering: crispEdges;
+}
+
+
+.axis text{
+/*fill: white;
+fill: grey;*/
+stroke: none;
+font-family: Roboto;
+font-size:.5em;
+}
+
+.line{
+	fill: none;
+    stroke: grey;
+    stroke-width: .7px;
+}
+
+
+#Haschisch{
+	font-family: Roboto;
+	position: absolute;
+	margin-top: 950;
+	margin-left: 500; }
+
+#Marihuana{
+	font-family: Roboto;
+	position: absolute;
+	margin-top: 950;
+	margin-left: 300; }
+
+#Monat{
+	font-family: Roboto;
+	position: absolute;
+	margin-top: 950;
+	margin-left: 700; }
+
+</style>
+
+
+<body>
+
+
+  <button type="button" id="Haschisch">nach Haschisch</button>
+  <button type="button" id="Marihuana">nach Mariuhana</button>
+  <button type="button" id="Monat">nach Monat</button>
+
+
+
+
+
+
+
+<script>
+
+var width  = window.innerWidth;
+var height = window.innerHeight;
+
+var paddingX= 300;
+var paddingY = 800;
+paddingAxis =900;
+var f = 10;
+var size = 2;
+var zwischen = 70;
+var radius = 10;
+var opacity=0.5;
+
+
+
+ var vis = d3.select("body")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .attr("id","canvas");
+
+  d3.json("plants.json", function(json) {
+
+var year2014 = json.filter(function(d,i) { return d.Jahr ==2014; });
+var year2015 = json.filter(function(d,i) { return d.Jahr ==2015; });
+
+
+  		console.log(json);
+
+  		console.log(d3.max(json, function(d) { return d.Marihuana; }));
+  		console.log(d3.max(json, function(d) { return d.Cannabisharz; }));
+
+
+
+ //Make scale for x-Axis
+var Xscale = d3.scale.linear()
+      .domain([1,18])
+      .range([0,1490-paddingX])
+      .nice()
+
+
+ //Make x-Axis
+  var xAxis = d3.svg.axis()
+    .scale(Xscale)
+    .ticks(0)
+    .orient("bottom")
+
+  vis.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(" + paddingX +","+ paddingAxis+")")
+      .call(xAxis)
+
+
+
+
+vis.selectAll("lines") // -> stroke-width defined in CSS
+ 	  .data(json)
+      .enter()
+      .append("line")
+      .attr("x1", function(d,i){return paddingX + i*zwischen})
+      .attr ("y1", paddingAxis)
+      .attr("x2", function(d,i){return paddingX + i*zwischen})
+      .attr ("y2", function(d){ if (f*d.Marihuana > f*d.Cannabisharz) 
+      	{return paddingY - f*d.Marihuana} 
+      	else {return paddingY - f*d.Cannabisharz}})
+      .attr("stroke-linecap", "round")
+      .attr("class", "line")
+
+
+
+// Scale for radius
+ var rMar = d3.scale.linear()
+                     .domain([0, d3.max(json, function(d) { return d.Marihuana  })])
+                     .range([20, 50]);
+
+
+  var rCan = d3.scale.linear()
+                     .domain([0, d3.max(json, function(d) { return d.Cannabisharz  })])
+                     .range([20, 50]);
+
+ console.log(d3.max(json, function(d) { return d.Marihuana; }));
+ console.log(rMar(40));
+
+
+
+vis.selectAll("circles")
+      .data(json)
+      .enter()
+      .append("circle")
+      .attr("fill", "#B8DD6C")
+      .attr("cx", function(d,i){return paddingX + i*zwischen            
+      })
+      .attr ("cy", function(d){ return paddingY - f*d.Cannabisharz})
+      .attr("r", function(d){return rCan(d.Cannabisharz)})
+      .style("opacity", opacity)
+      .attr("class","Hasch")
+
+ 
+$("#Haschisch").on ("click",function() {
+    $(".Hasch").toggle();
+});
+
+
+
+
+
+
+
+ vis.selectAll("circles")
+      .data(json)
+      .enter()
+      .append("circle")
+      .attr("fill", "#339C86")
+      .attr("cx", function(d,i){return paddingX + i*zwischen})
+      .attr ("cy", function(d){ return paddingY - f*d.Marihuana
+      })
+      .attr("r", function(d){return rMar(d.Cannabisharz)})
+      .style("opacity", opacity)
+      .attr("class", "Mari")
+
+
+ 
+$("#Marihuana").on ("click",function() {
+    $(".Mari").toggle();
+});
+
+
+  });
+
+
+
+
+</script>
+
+</body>
+</html>
