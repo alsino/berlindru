@@ -4,6 +4,10 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
 	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 
+
+  <script src="//use.typekit.net/fzl3mur.js"></script>
+  <script>try{Typekit.load();}catch(e){}</script>
+
 </head>
 <script src="d3/d3.js"></script>
 <script src="d3/d3.min.js"></script>
@@ -19,15 +23,31 @@ body{
 
 h1{
 	position: absolute;
-	font-family: Roboto;
 	font-size: 2em;
-	margin-top: 5%;
+	margin-top: 3%;
 	margin-left: 13%;
+  line-height: 1.2;
+  line-spacing:0.1em
+  font-weight:600;
+}
+
+h2{
+  position: absolute;
+  font-size: 1.4em;
+  margin-top: 5%;
+  margin-left: 13%;
+  line-height: 1.2;
+  line-spacing:0.1em
+  font-weight:100;
+  color: grey;
+
 }
 
 #canvas{
 	/*background-color: #594057;*/
 	background-color: white;
+  /*background-color: #202020;*/
+
 }
 
 .axis{
@@ -51,27 +71,27 @@ font-size:.5em;
 .line{
 	fill: none;
     stroke: grey;
-    stroke-width: .7px;
+    stroke-width: .2px;
 }
 
 
 #Haschisch{
-	font-family: Roboto;
-	position: absolute;
-	margin-top: 950;
-	margin-left: 500; }
+  font-family: Roboto;
+  position: absolute;
+  margin-top: 400;
+  margin-left: 1600; }
 
 #Marihuana{
-	font-family: Roboto;
-	position: absolute;
-	margin-top: 950;
-	margin-left: 300; }
+  font-family: Roboto;
+  position: absolute;
+  margin-top: 450;
+  margin-left: 1600; }
 
-#Monat{
-	font-family: Roboto;
-	position: absolute;
-	margin-top: 950;
-	margin-left: 700; }
+#ShowLines{
+  font-family: Roboto;
+  position: absolute;
+  margin-top: 500;
+  margin-left: 1600; }
 
 </style>
 
@@ -79,10 +99,11 @@ font-size:.5em;
 <body>
 
 
-  <h1>Beschlagnahmte Mengen Cannabis und Mariuhana <br> Berlin, 2014-2015</h1>
-  <button type="button" id="Haschisch">nach Haschisch</button>
-  <button type="button" id="Marihuana">nach Mariuhana</button>
-  <button type="button" id="Monat">nach Monat</button>
+  <h1>Seized quantities of Cannabis and Mariuhana</h1>
+  <h2>Berlin, 2014-2015</h2>
+  <button type="button" id="Haschisch">Show Haschisch</button>
+  <button type="button" id="Marihuana">Show Mariuhana</button>
+  <button type="button" id="ShowLines">Show/hide difference</button>
 
 
 
@@ -92,17 +113,24 @@ font-size:.5em;
 
 <script>
 
+
+
+
+
 var width  = window.innerWidth;
 var height = window.innerHeight;
 
 var paddingX= 300;
-var paddingY = 800;
-paddingAxis =900;
+var paddingY = 700;
+paddingAxis =750;
 var f = 10;
 var size = 2;
 var zwischen = 70;
 var radius = 10;
-var opacity=0.5;
+var opacity=1;
+var delay= 400;
+var duration=4000;
+
 
 
 
@@ -146,76 +174,132 @@ var Xscale = d3.scale.linear()
 
 
 
-vis.selectAll("lines") // -> stroke-width defined in CSS
- 	  .data(json)
+ //Make scale for y-Axis
+var Yscale = d3.scale.linear()
+      .domain([1,18])
+      .range([0,1490-paddingX])
+      .nice()
+
+
+
+ /*Make x-Axis
+  var xAxis = d3.svg.axis()
+    .scale(Yscale)
+    .ticks(0)
+    .orient("left")
+
+  vis.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(" + paddingX +","+ paddingAxis+")")
+      .call(xAxis)*/
+
+
+
+
+/*var heightLines = vis.selectAll("lines") // -> stroke-width defined in CSS
+    .data(json)
       .enter()
       .append("line")
       .attr("x1", function(d,i){return paddingX + i*zwischen})
       .attr ("y1", paddingAxis)
       .attr("x2", function(d,i){return paddingX + i*zwischen})
       .attr ("y2", function(d){ if (f*d.Marihuana > f*d.Cannabisharz) 
-      	{return paddingY - f*d.Marihuana} 
-      	else {return paddingY - f*d.Cannabisharz}})
+        {return paddingY - f*d.Marihuana} 
+        else {return paddingY - f*d.Cannabisharz}})
       .attr("stroke-linecap", "round")
+      .attr("class", "line")*/
+
+
+
+var diffLines = vis.selectAll("lines") // -> stroke-width defined in CSS
+    .data(json)
+      .enter()
+      .append("line")
+      .attr("x1", function(d,i){return paddingX + i*zwischen})
+      .attr ("y1", function(d){return paddingY - f*d.Cannabisharz})
+      .attr("x2", function(d,i){return paddingX + i*zwischen})
+      .attr ("y2", function(d){return paddingY - f*d.Marihuana})
+      .attr("stroke-linecap", "round")
+      .attr("stroke-dasharray",  ("3, 3"))
       .attr("class", "line")
 
+$( document ).ready(function() {
+  $(".line").hide();
+});
 
 
-// Scale for radius
- var rMar = d3.scale.linear()
-                     .domain([0, d3.max(json, function(d) { return d.Marihuana  })])
-                     .range([20, 50]);
+$("#ShowLines").on ("click",function() {
+        $(".line").toggle("slow");
 
-
-  var rCan = d3.scale.linear()
-                     .domain([0, d3.max(json, function(d) { return d.Cannabisharz  })])
-                     .range([20, 50]);
-
- console.log(d3.max(json, function(d) { return d.Marihuana; }));
- console.log(rMar(40));
-
-
-
-vis.selectAll("circles")
-      .data(json)
-      .enter()
-      .append("circle")
-      .attr("fill", "#B8DD6C")
-      .attr("cx", function(d,i){return paddingX + i*zwischen            
-      })
-      .attr ("cy", function(d){ return paddingY - f*d.Cannabisharz})
-      .attr("r", function(d){return rCan(d.Cannabisharz)})
-      .style("opacity", opacity)
-      .attr("class","Hasch")
-
-
-
-
-$("#Haschisch").on ("click",function() {
-    $(".Hasch").toggle("slow");
 });
 
 
 
 
 
+// Scale for radius
+ var rMar = d3.scale.linear()
+                     .domain([0, d3.max(json, function(d) { return d.Marihuana  })])
+                     .range([5, 10]);
 
- vis.selectAll("circles")
+
+  var rCan = d3.scale.linear()
+                     .domain([0, d3.max(json, function(d) { return d.Cannabisharz  })])
+                     .range([5, 10]);
+
+ console.log(d3.max(json, function(d) { return d.Marihuana; }));
+ console.log(rMar(40));
+
+
+
+/// Make the two groups of circles ///
+var can= vis.selectAll("circles")
       .data(json)
       .enter()
       .append("circle")
-      .attr("fill", "#339C86")
+      .attr("fill", "grey")
       .attr("cx", function(d,i){return paddingX + i*zwischen})
-      .attr ("cy", function(d){ return paddingY - f*d.Marihuana
-      })
-      .attr("r", function(d){return rMar(d.Cannabisharz)})
-      .style("opacity", opacity)
-      .attr("class", "Mari")
+      .attr ("cy", function(d){ return paddingAxis})
+      .attr("r", 5)
+      .style("opacity", 0.5)
+      .attr("class","Hasch")
 
+
+
+
+$("#Haschisch").on ("click",function() {
+      can.transition().delay(delay).duration(duration)
+      .attr("cy", function(d){ return paddingY - f*d.Cannabisharz})
+      .attr("r", function(d){return rMar(d.Marihuana)})
+      .style("opacity", opacity)
+      .style("fill", "#333210")
+
+
+    //$(".Hasch").toggle("slow");
+});
+
+
+
+ var mari = vis.selectAll("circles")
+      .data(json)
+      .enter()
+      .append("circle")
+      .style("fill", "grey")
+      .attr("cx", function(d,i){return paddingX + i*zwischen})
+      .attr ("cy", function(d){ return paddingAxis})
+      .attr("r", 5)
+      .style("opacity", 0.5)
+      .attr("class", "Mari")
 
  
 $("#Marihuana").on ("click",function() {
-    $(".Mari").toggle("slow");
+      mari.transition().delay(delay).duration(duration)
+        .attr("cy", function(d){ return paddingY - f*d.Marihuana})
+        .attr("r", function(d){return rMar(d.Marihuana)})
+        .style("opacity", opacity)
+        .style("fill", "#90A149")
+
+    //$(".Mari").toggle("slow");
 });
 
 
