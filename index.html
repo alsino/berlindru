@@ -45,12 +45,13 @@ h2{
 
 #canvas{
 	/*background-color: #594057;*/
-	background-color: white;
+	/*background-color: white;/*
   /*background-color: #202020;*/
+  background-color: #F5F5F5;
 
 }
 
-.axis{
+.axis path{
   fill: none;
   stroke-width: 1px;
   /*stroke:white;*/
@@ -61,12 +62,13 @@ h2{
 
 
 .axis text{
-/*fill: white;
-fill: grey;*/
-stroke: none;
+fill: grey;
+/*stroke: green;*/
 font-family: Roboto;
-font-size:.5em;
+font-size:.7em;
 }
+
+
 
 .line{
 	fill: none;
@@ -122,7 +124,7 @@ var height = window.innerHeight;
 
 var paddingX= 300;
 var paddingY = 700;
-paddingAxis =750;
+paddingAxis =250+643;
 var f = 10;
 var size = 2;
 var zwischen = 70;
@@ -176,23 +178,25 @@ var Xscale = d3.scale.linear()
 
  //Make scale for y-Axis
 var Yscale = d3.scale.linear()
-      .domain([1,18])
-      .range([0,1490-paddingX])
+      .domain([0,d3.max(json, function(d) { return d.Marihuana;})])
+      //.range([0,-400])
+      .range([0, -400])
       .nice()
 
+ console.log(Yscale(10));
 
-
- /*Make x-Axis
+ //Make y-Axis
   var xAxis = d3.svg.axis()
     .scale(Yscale)
-    .ticks(0)
+    .ticks(10)
     .orient("left")
 
   vis.append("g")
       .attr("class", "axis")
-      .attr("transform", "translate(" + paddingX +","+ paddingAxis+")")
-      .call(xAxis)*/
+      .attr("transform", "translate("+200+","+paddingAxis+")")      
+      .call(xAxis)
 
+   
 
 
 
@@ -266,10 +270,9 @@ var can= vis.selectAll("circles")
 
 
 
-
 $("#Haschisch").on ("click",function() {
       can.transition().delay(delay).duration(duration)
-      .attr("cy", function(d){ return paddingY - f*d.Cannabisharz})
+      .attr("cy", function(d){ return paddingAxis - f*d.Cannabisharz})
       .attr("r", function(d){return rMar(d.Marihuana)})
       .style("opacity", opacity)
       .style("fill", "#333210")
@@ -294,17 +297,18 @@ $("#Haschisch").on ("click",function() {
  
 $("#Marihuana").on ("click",function() {
       mari.transition().delay(delay).duration(duration)
-        .attr("cy", function(d){ return paddingY - f*d.Marihuana})
+        //.attr("cy", function(d){ return paddingAxis - f*d.Marihuana})
+        .attr("cy", function(d){ return Yscale(d.Marihuana)})
         .attr("r", function(d){return rMar(d.Marihuana)})
         .style("opacity", opacity)
         .style("fill", "#90A149")
 
     //$(".Mari").toggle("slow");
+
 });
 
 
   });
-
 
 
 
